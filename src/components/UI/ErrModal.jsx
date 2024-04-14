@@ -1,18 +1,22 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import Card from './Card';
 import { Button } from './Button';
-
-const ErrModal = (props) => {
-
+import ReactDOM from 'react-dom';
 
 
+const BackDrop = (props)=> {
+    return (
+        <div onClick={props.onConfirm} className='backdrop-blur-sm bg-white/30 fixed w-screen h-screen top-0 left-0'>
 
+        </div>
+    )
+}
+
+const ModalOverlay = (props) => {
     return (
         <div className='error-modal'>
-            <div onClick={props.onConfirm} className='backdrop-blur-sm bg-white/30 fixed w-screen h-screen top-0'>
 
-            </div>
-            <Card className="w-[36rem] p-0 z-20">
+            <Card className="w-[36rem] !p-0 z-20">
                 <header className='  bg-red-700 p-4 text-white rounded-t-xl   '>
                     <h2 className='text-center text-xl text-white'>
                         {props.error.title}
@@ -26,6 +30,41 @@ const ErrModal = (props) => {
                 </footer>
             </Card>
         </div>
+    )
+}
+
+
+const ErrModal = (props) => {
+
+    const cleanupRef=useRef();
+
+    useEffect(()=>{
+     
+        console.log("modal olusturuldu");
+        return ()=>{
+            if(cleanupRef.current){
+                
+                console.log("component kaldırıldı");
+                props.setWorkers([])
+            }
+        }
+    },[cleanupRef,props]);
+
+    useEffect(()=>{
+        return ()=>{
+            cleanupRef.current=true;
+        };
+    },[])
+
+
+
+
+    return (
+        <React.Fragment>
+            {ReactDOM.createPortal(<BackDrop onConfirm={props.onConfirm}/>,document.getElementById("backdrop-root"))}
+            {ReactDOM.createPortal(<ModalOverlay onConfirm={props.onConfirm} error={props.error}/>,document.getElementById("overlay-root"))}
+        </React.Fragment>
+        
     )
 }
 
